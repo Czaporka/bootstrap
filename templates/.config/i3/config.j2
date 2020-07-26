@@ -1,15 +1,12 @@
 #######################################
-# 1. common part
+# common settings
 #######################################
 {% include "_config-common" %}
+#######################################
+# DE-specific settings
+#######################################
 {% if os.environ.get("XDG_CURRENT_DESKTOP") == "XFCE" %}
-#######################################
-# 2. XFCE part
-#######################################
-{% include "_config-i3" %}
+    {%- include "_config-xfce" %}
 {% else %}
-#######################################
-# 2. no DE / bare i3 part
-#######################################
-{% include "_config-xfce" %}
+    {%- include "_config-i3" %}
 {% endif %}

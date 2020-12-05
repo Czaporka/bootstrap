@@ -1,0 +1,119 @@
+# ~/.bashrc: executed by bash(1) for non-login shells.
+
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+function _get_fancy_prompt()
+{
+    function _escape()
+    {
+        printf "\[\033${1}\]"
+    }
+    local _green=$(_escape '[1;32m')
+    local _blue=$(_escape '[1;34m')
+    local _reset=$(_escape '[0m')
+    local _color
+    local _glyph
+
+    case $(uname) in
+    Linux)
+        case $(grep -P -o "(?<=^ID=)([a-z]+)$" /etc/os-release | tr -d '"') in
+        arch)    _color='15;148;210'; _glyph=' '; ;;
+        bsd)     _color='119;0;0'   ; _glyph=' '; ;;
+        centos)  _color='239;167;36'; _glyph=' '; ;;
+        debian)  _color='199;0;54'  ; _glyph=' '; ;;
+        fedora)  _color='0;69;126'  ; _glyph=' '; ;;
+        manjaro) _color='53;191;92' ; _glyph=' '; ;;
+        opensuse)_color='115;186;37'; _glyph=' '; ;;
+        raspbian)_color='195;28;74' ; _glyph=' '; ;;
+        redhat)  _color='238;0;0'   ; _glyph=' '; ;;
+        ubuntu)  _color='233;84;32' ; _glyph=' '; ;;
+        *)       _color='0;0;0'     ; _glyph=' '; ;;
+        esac
+        ;;
+    Darwin)
+        _color='255;255;255'; _glyph=' '
+        ;;
+    *)
+        _color='174;174;174'; _glyph='' 
+        ;;
+    esac
+
+    _color=$(_escape "[38;2;${_color}m")
+
+    # glyph to the left
+    #echo -n "${_color}${_glyph}${_reset}${debian_chroot:+($debian_chroot)}${_green}\u@\h${_reset}:${_blue}\w${_reset}\$ "
+
+    # glyph instead of @
+    echo -n "${debian_chroot:+($debian_chroot)}${_green}\u${_color}${_glyph}${_green}\h${_reset}:${_blue}\w${_reset}\$ "
+}
+
+
+HISTCONTROL=ignoreboth
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+shopt -s histappend
+shopt -s checkwinsize
+shopt -s globstar
+
+# make less more friendly for non-text input files, see lesspipe(1)
+#[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+case "$TERM" in
+    xterm-color|*-256color) color_prompt=yes;;
+esac
+
+if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+    PS1=$(_get_fancy_prompt)
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+
+# If this is an xterm set the title to user@host:dir
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    alias dir='dir --color=auto'
+    alias vdir='vdir --color=auto'
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# colored GCC warnings and errors
+export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+source ~/.bash_completion/alacritty
+

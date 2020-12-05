@@ -4,6 +4,9 @@
 
 set $mod Mod4
 
+# Use Mouse+$mod to drag floating windows to their wanted position
+floating_modifier $mod
+
 #########################################################
 # FONT
 #########################################################
@@ -22,9 +25,6 @@ font pango:monospace 8
 # clear in small sizes. However, its unicode glyph coverage is limited, the old
 # X core fonts rendering does not support right-to-left and this being a bitmap
 # font, it doesn’t scale on retina/hidpi displays.
-
-# Use Mouse+$mod to drag floating windows to their wanted position
-floating_modifier $mod
 
 #########################################################
 # KEY BINDINGS

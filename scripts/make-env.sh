@@ -59,18 +59,32 @@ do
     esac
 done
 
-# remove the existing virtual environment
-[[ "${FORCE}" == true ]] && rm -rf "${ENV_NAME}"
+if [[ "${FORCE}" == true ]]; then
+    echo Removing the existing virtual environment...
+    rm -rf "${ENV_NAME}"
+fi
 
-# create the virtual environment
-[[ ! -d "${ENV_NAME}" ]] && "$PYTHON" -m venv "${ENV_NAME}"
+if [[ ! -d "${ENV_NAME}" ]]; then
+    echo Creating the virtual environment...
+    "$PYTHON" -m venv "${ENV_NAME}"
+fi
 
-# activate the virtual environment
+echo Activating the virtual environment...
 source "${ENV_NAME}/bin/activate"
 
-# install the packages
 PIP_INSTALL_ARGS=()
-[[ -f "requirements.txt" ]] && PIP_INSTALL_ARGS+=( -r requirements.txt )
+if [[ -f "requirements.txt" ]]; then
+    echo "(requirements.txt found)"
+    PIP_INSTALL_ARGS+=(-r requirements.txt)
+fi
 PIP_INSTALL_ARGS+=("$@")
-[[ "${DEVELOPMENT}" == true ]] && PIP_INSTALL_ARGS+=( "${DEV_PACKAGES[@]}" )
+[[ "${DEVELOPMENT}" == true ]] && PIP_INSTALL_ARGS+=("${DEV_PACKAGES[@]}")
+
+echo Installing the packages...
 python -m pip install "${PIP_INSTALL_ARGS[@]}"
+
+if [[ -f "setup.py" ]]; then
+    echo "(setup.py found)"
+    echo Installing current project in editable mode...
+    python -m pip install --editable .
+fi

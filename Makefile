@@ -51,7 +51,7 @@ ${install-script-targets}: install-script-%: scripts/%
 .PHONY: install-dotfile-%
 install-dotfile-targets := $(addprefix install-dotfile-, ${DOTFILES:dotfiles/%=%})
 ${install-dotfile-targets}: install-dotfile-%: target/%
-	@echo success
+	@echo "TODO: $*"
 
 .PHONY: clean
 clean:

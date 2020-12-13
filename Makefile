@@ -2,28 +2,56 @@ SHELL := /usr/bin/bash
 
 DOTFILES := $(shell find dotfiles/ -type f -name "[^_]*")
 DOTFILES := $(filter-out %.old, ${DOTFILES})
-TARGET_DOTFILES := ${DOTFILES:dotfiles/%=target/%}
+TARGET := ${DOTFILES:dotfiles/%=target/%}
+
+SCRIPTS := $(shell find scripts/ -type f -name "[^_]*")
 
 
 .PHONY: render
-render: ${TARGET_DOTFILES}
+render: ${TARGET}
 
 .SUFFIXES:
 
 .PHONY: status
-status: # render
-	@bash ./status.sh
+status: render
+	@echo "==============================="
+	@echo "|          dotfiles:"
+	@echo "-------------------------------"
+	@find target/ -type f | while read rendered; do \
+		bash ./print-status.sh $${rendered/target\//~/.} $${rendered}; \
+	done
+	@echo "==============================="
+	@echo "|         scripts:"
+	@echo "-------------------------------"
+	@find scripts/ -type f | while read script; do \
+		bash ./print-status.sh $${script/scripts/~/.local/bin} $${script}; \
+	done
 
 target/%: dotfiles/% render-single.py
 	@python3 render-single.py dotfiles/$* ${@:%.j2=%}
 
-.PHONY: install-scripts
-install-scripts:
+#======================================================
+#| Generate target for each script in `scripts/`, e.g.:
+#|   * install-script-make-env
+#|   * install-scrpt-...
+#------------------------------------------------------
+.PHONY: install-script-%
+install-script-targets := $(addprefix install-script-, ${SCRIPTS:scripts/%=%})
+${install-script-targets}: install-script-%: scripts/%
 	@mkdir -p ~/.local/bin
-	@chmod +x scripts/*
-	@for item in scripts/*; do\
-		cp -p $$item ~/.local/bin/$$(basename $$item .sh);\
-	done
+	@cp $^ ~/.local/bin/$$(basename $* .sh)
+	@chmod +x ~/.local/bin/$$(basename $* .sh)
+
+#======================================================
+#| Generate target for each file in `dotfiles/`, e.g.:
+#|   * install-dotfile-bashrc
+#|   * install-dotfile-vimrc
+#|   * install-dotfile-...
+#------------------------------------------------------
+.PHONY: install-dotfile-%
+install-dotfile-targets := $(addprefix install-dotfile-, ${DOTFILES:dotfiles/%=%})
+${install-dotfile-targets}: install-dotfile-%: target/%
+	@echo success
 
 .PHONY: clean
 clean:

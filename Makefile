@@ -1,10 +1,18 @@
+SHELL := /usr/bin/bash
+
 DOTFILES := $(shell find dotfiles/ -type f -name "[^_]*")
 DOTFILES := $(filter-out %.old, ${DOTFILES})
-TARGETS := ${DOTFILES:dotfiles/%=target/%}
-DEPENDENCIES := $(shell find dotfiles/ -type f)
+TARGET_DOTFILES := ${DOTFILES:dotfiles/%=target/%}
+
 
 .PHONY: render
-render: ${TARGETS}
+render: ${TARGET_DOTFILES}
+
+.SUFFIXES:
+
+.PHONY: status
+status: # render
+	@bash ./status.sh
 
 target/%: dotfiles/% render-single.py
 	@python3 render-single.py dotfiles/$* ${@:%.j2=%}

@@ -3,6 +3,7 @@ import argparse
 import logging
 import os
 from posixpath import dirname
+from shutil import copyfile
 import sys
 
 from jinja2 import Environment, FileSystemLoader
@@ -22,10 +23,10 @@ if __name__ == "__main__":
 
     _, ext = os.path.splitext(args.in_file)
     if ext != ".j2":
-        logging.info(f"{args.in_file}: not a .j2 file, creating hard link...")
+        logging.info(f"{args.in_file}: not a .j2 file, copying 1:1...")
         if os.path.exists(args.out_file):
             os.remove(args.out_file)
-        os.link(args.in_file, args.out_file)
+        copyfile(args.in_file, args.out_file)
         sys.exit(0)
 
     logging.info(f"{args.in_file}: rendering...")

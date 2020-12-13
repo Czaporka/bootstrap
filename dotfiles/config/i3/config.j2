@@ -6,7 +6,7 @@
 # DE-specific settings
 #######################################
 {% if os.environ.get("XDG_CURRENT_DESKTOP") == "XFCE" %}
-    {%- include "_config-xfce" %}
+{%-  include "_config-xfce" %}
 {% else %}
-    {%- include "_config-i3" %}
+{%-  include "_config-i3" %}
 {% endif %}

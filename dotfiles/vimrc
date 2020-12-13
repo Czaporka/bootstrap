@@ -12,9 +12,9 @@ set hlsearch
 syntax on
 filetype plugin indent on
 
-execute pathogen#infect()
+"execute pathogen#infect()
 
-let g:jedi#show_call_signatures=1
+"let g:jedi#show_call_signatures=1
 
-map <F5> <Esc>:w<CR>:!python3 %<CR>
+"map <F5> <Esc>:w<CR>:!python3 %<CR>
 

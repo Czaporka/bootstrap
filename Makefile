@@ -1,10 +1,13 @@
-TEMPLATES := $(shell find templates/ -type f -name "*.j2")
-TARGETS := ${TEMPLATES:templates/%.j2=target/%}
-DEPENDENCIES := $(dir ${TEMPLATES})/*
+DOTFILES := $(shell find dotfiles/ -type f -name "[^_]*")
+DOTFILES := $(filter-out %.old, ${DOTFILES})
+TARGETS := ${DOTFILES:dotfiles/%=target/%}
+DEPENDENCIES := $(shell find dotfiles/ -type f)
 
-${TARGETS}: ${DEPENDENCIES} render.py
-	@echo $^
-	python3 render.py $(filter %.j2, $^) $@
+.PHONY: render
+render: ${TARGETS}
+
+target/%: dotfiles/% render-single.py
+	@python3 render-single.py dotfiles/$* ${@:%.j2=%}
 
 .PHONY: install-scripts
 install-scripts:

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Render file `in_file` and dump the result as `out_file`."""
 import argparse
 import logging

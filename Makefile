@@ -6,18 +6,22 @@ TARGET := ${DOTFILES:dotfiles/%=target/%}
 
 SCRIPTS := $(shell find scripts/ -type f -name "[^_]*")
 
+BASENAMES_SCRIPTS := ${SCRIPTS:scripts/%=%}
+BASENAMES_DOTFILES := ${DOTFILES:dotfiles/%=%}
+BASENAMES_DOTFILES := ${BASENAMES_DOTFILES:%.j2=%}
+
 
 .PHONY: render
 render: ${TARGET}
 
 .SUFFIXES:
 
-#======================================================
-#| Display status of every script and dotfile, one of:
-#|   * Up to date
-#|   * Differs
-#|   * Not installed
-#------------------------------------------------------
+# ======================================================
+# | Display status of every script and dotfile, one of:
+# |   * Up to date
+# |   * Differs
+# |   * Not installed
+# ------------------------------------------------------
 .PHONY: status
 status: render
 	@echo "==============================="
@@ -33,55 +37,52 @@ status: render
 		_scripts/print-status.sh $${script/scripts/~/.local/bin} $${script}; \
 	done
 
-#======================================================
-#| Render a dotfile and put it into `target/`
-#------------------------------------------------------
-target/%: dotfiles/% render-single.py
+# ======================================================
+# | Render a dotfile and put it into `target/`
+# ------------------------------------------------------
+target/%: dotfiles/% _scripts/render-single.py
 	@_scripts/render-single.py dotfiles/$* ${@:%.j2=%}
 
-#======================================================
-#| Generate target for each script in `scripts/`, e.g.:
-#|   * install-script-make-env
-#|   * install-scrpt-...
-#------------------------------------------------------
-#| install-*
-#------------------------------------------------------
+# ======================================================
+# | Generate target for each script in `scripts/`, e.g.:
+# |   * install-script-make-env
+# |   * install-scrpt-...
+# ------------------------------------------------------
+# | install-*
+# ------------------------------------------------------
 .PHONY: install-script-%
-install-script-targets := $(addprefix install-script-, ${SCRIPTS:scripts/%=%})
+install-script-targets := $(addprefix install-script-, ${BASENAMES_SCRIPTS})
 ${install-script-targets}: install-script-%: scripts/%
 	@mkdir -p ~/.local/bin
-	# @cp $^ ~/.local/bin/$$(basename $* .sh)
-	@_scripts/safe-install.sh $^ ~/.local/bin/$$(basename $* .sh)
+	@_scripts/install-link.sh $^ ~/.local/bin/$$(basename $* .sh)
 	@chmod +x ~/.local/bin/$$(basename $* .sh)
-#------------------------------------------------------
-#| diff-*
-#------------------------------------------------------
+# ------------------------------------------------------
+# | diff-*
+# ------------------------------------------------------
 .PHONY: diff-script-%
-diff-script-targets := $(addprefix diff-script-, ${SCRIPTS:scripts/%=%})
+diff-script-targets := $(addprefix diff-script-, ${BASENAMES_SCRIPTS})
 ${diff-script-targets}: diff-script-%: scripts/%
-# @diff -q $^ ~/.local/bin/$$(basename $* .sh) || diff --color -y <(sort $^) <(sort ~/.local/bin/$$(basename $* .sh))
-	@diff -q $^ ~/.local/bin/$$(basename $* .sh) || diff --color -y $^ ~/.local/bin/$$(basename $* .sh)
+	@diff -qs $^ ~/.local/bin/$$(basename $* .sh) || diff --color -y $^ ~/.local/bin/$$(basename $* .sh)
 
-#======================================================
-#| Generate target for each file in `dotfiles/`, e.g.:
-#|   * install-dotfile-bashrc
-#|   * install-dotfile-vimrc
-#|   * install-dotfile-...
-#------------------------------------------------------
-#| install-*
-#------------------------------------------------------
+# ======================================================
+# | Generate target for each file in `dotfiles/`, e.g.:
+# |   * install-dotfile-bashrc
+# |   * install-dotfile-vimrc
+# |   * install-dotfile-...
+# ------------------------------------------------------
+# | install-*
+# ------------------------------------------------------
 .PHONY: install-dotfile-%
-install-dotfile-targets := $(addprefix install-dotfile-, ${DOTFILES:dotfiles/%=%})
+install-dotfile-targets := $(addprefix install-dotfile-, ${BASENAMES_DOTFILES})
 ${install-dotfile-targets}: install-dotfile-%: target/%
-	@echo "TODO: $*"
-#------------------------------------------------------
-#| diff-*
-#------------------------------------------------------
+	@_scripts/install-link.sh $^ ~/.$*
+# ------------------------------------------------------
+# | diff-*
+# ------------------------------------------------------
 .PHONY: diff-dotfile-%
-diff-dotfile-targets := $(addprefix diff-dotfile-, ${DOTFILES:dotfiles/%=%})
+diff-dotfile-targets := $(addprefix diff-dotfile-, ${BASENAMES_DOTFILES})
 ${diff-dotfile-targets}: diff-dotfile-%: target/%
-# @diff -q $^ ~/.$* || diff --color -y <(sort $^) <(sort ~/.$*)
-	@diff -q $^ ~/.$* || diff --color -y $^ ~/.$*
+	@diff -qs $^ ~/.$* || diff --color -y $^ ~/.$*
 
 .PHONY: clean
 clean:

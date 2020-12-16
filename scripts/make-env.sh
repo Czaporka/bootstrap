@@ -38,16 +38,14 @@ Options:
 EOF
 
 OPTS=$(getopt -o dhfn:p: --long development,help,force,name,python: -n make-env -- "$@")
-if [[ $? != 0 ]]
-then
+if [[ $? != 0 ]]; then
     echo "Error: Could not parse opts." >&2
     exit 1
 fi
 
 eval set -- "${OPTS}"
 
-while true
-do
+while true; do
     case "$1" in
         -d|--development) DEVELOPMENT=true; shift;;
         -f|--force)       FORCE=true; shift;;

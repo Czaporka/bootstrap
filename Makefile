@@ -52,17 +52,17 @@ target/%: dotfiles/% _scripts/render-single.py
 # ------------------------------------------------------
 .PHONY: install-script-%
 install-script-targets := $(addprefix install-script-, ${BASENAMES_SCRIPTS})
-${install-script-targets}: install-script-%: scripts/%
+${install-script-targets}: install-script-%: scripts/% render
 	@mkdir -p ~/.local/bin
-	@_scripts/install-link.sh $^ ~/.local/bin/$$(basename $* .sh)
+	@_scripts/install-link.sh $< ~/.local/bin/$$(basename $* .sh)
 	@chmod +x ~/.local/bin/$$(basename $* .sh)
 # ------------------------------------------------------
 # | diff-*
 # ------------------------------------------------------
 .PHONY: diff-script-%
 diff-script-targets := $(addprefix diff-script-, ${BASENAMES_SCRIPTS})
-${diff-script-targets}: diff-script-%: scripts/%
-	@diff -qs $^ ~/.local/bin/$$(basename $* .sh) || diff --color -y $^ ~/.local/bin/$$(basename $* .sh)
+${diff-script-targets}: diff-script-%: scripts/% render
+	@diff -qs $< ~/.local/bin/$$(basename $* .sh) || diff --color -y $< ~/.local/bin/$$(basename $* .sh)
 
 # ======================================================
 # | Generate target for each file in `dotfiles/`, e.g.:
@@ -74,15 +74,15 @@ ${diff-script-targets}: diff-script-%: scripts/%
 # ------------------------------------------------------
 .PHONY: install-dotfile-%
 install-dotfile-targets := $(addprefix install-dotfile-, ${BASENAMES_DOTFILES})
-${install-dotfile-targets}: install-dotfile-%: target/%
-	@_scripts/install-link.sh $^ ~/.$*
+${install-dotfile-targets}: install-dotfile-%: target/% render
+	@_scripts/install-link.sh $< ~/.$*
 # ------------------------------------------------------
 # | diff-*
 # ------------------------------------------------------
 .PHONY: diff-dotfile-%
 diff-dotfile-targets := $(addprefix diff-dotfile-, ${BASENAMES_DOTFILES})
-${diff-dotfile-targets}: diff-dotfile-%: target/%
-	@diff -qs $^ ~/.$* || diff --color -y $^ ~/.$*
+${diff-dotfile-targets}: diff-dotfile-%: target/% render
+	@diff -qs $< ~/.$* || diff --color -y $< ~/.$*
 
 .PHONY: clean
 clean:

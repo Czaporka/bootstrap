@@ -34,32 +34,40 @@ echo "  link       : ${TARGET}"
 echo "  pointing to: ${SOURCE}"
 
 if [[ "$(readlink ${TARGET})" == "${SOURCE}" ]]; then
+    # The link is already installed
     echo "Existing link is up to date."; _exit 0
+
 elif [[ -h "${TARGET}" ]]; then
+    # There is a link but it points somewhere else
     echo "Overwriting an existing link pointing to: '$(readlink ${TARGET})'."
     ln -sf "${SOURCE}" "${TARGET}" && _exit 0 || _exit 103
+
 elif [[ ! -e "${TARGET}" ]]; then
-    echo "File/link doesn't exist. Creating..."
+    # There is no link or file
+    echo "File/link doesn't exist. Creating link."
     ln -s "${SOURCE}" "${TARGET}" && _exit 0 || _exit 104
+
 else
+    # There is a file where we want the link
     diff -q "${TARGET}" "${SOURCE}" > /dev/null
     case $? in
     0)
-        # This kinda no longer makes sense since switching to symlinks.
-        # The case will only be hit... never?
-        echo "${TARGET}: Already up to date."; _exit 0
+        # The installed file is identical to the rendered one
+        echo "Overwriting an identical file with a link."
+        ln -sf "${SOURCE}" "${TARGET}" && _exit 0 || _exit 105
         ;;
     1)
+        # The installed file is different from the rendered one
         _SUFFIX="$(date '+%Y%m%d%H%M%S')"
         _NEW_TARGET="${TARGET}.${_SUFFIX}"
         echo -n "File ${TARGET} already exists. "
         echo "Renaming original with suffix \".${_SUFFIX}\"."
         mv "${TARGET}" "${_NEW_TARGET}"
 
-        ln -s "${SOURCE}" "${TARGET}" && _exit 0 || _exit 105
+        ln -s "${SOURCE}" "${TARGET}" && _exit 0 || _exit 106
         ;;
     2)
-        _exit 102
+        _exit 107
         ;;
     esac
 fi

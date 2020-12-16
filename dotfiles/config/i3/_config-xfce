@@ -18,3 +18,5 @@ bindsym $mod+d exec dmenu_run
 # For use with xfce4 whisker popup menu in Mint XFCE:
 # bindsym $mod+Shift+d exec dmenu_run
 # bindsym $mod+d exec --no-startup-id xfce4-popup-whiskermenu
+
+bindsym Print exec scrot "$HOME/Images/screenshots/screenshot_$(date +%Y-%m-%d_%H:%M:%S).png"

@@ -33,13 +33,13 @@ echo "Attempting to install:"
 echo "  link       : ${TARGET}"
 echo "  pointing to: ${SOURCE}"
 
-if [[ "$(readlink ${TARGET})" == "${SOURCE}" ]]; then
+if [[ "$(readlink -e ${TARGET})" == "$(readlink -e ${SOURCE})" ]]; then
     # The link is already installed
     echo "Existing link is up to date."; _exit 0
 
 elif [[ -h "${TARGET}" ]]; then
     # There is a link but it points somewhere else
-    echo "Overwriting an existing link pointing to: '$(readlink ${TARGET})'."
+    echo "Overwriting an existing link pointing to: '$(readlink -e ${TARGET})'."
     ln -sf "${SOURCE}" "${TARGET}" && _exit 0 || _exit 103
 
 elif [[ ! -e "${TARGET}" ]]; then

@@ -27,13 +27,13 @@ status: render
 	@echo "==============================="
 	@echo "|          dotfiles:"
 	@echo "-------------------------------"
-	@find target/ -type f | while read rendered; do \
+	@find target/ -type f,l | while read rendered; do \
 		_scripts/print-status.sh $${rendered/target\//~/.} $${rendered}; \
 	done
 	@echo "==============================="
 	@echo "|         scripts:"
 	@echo "-------------------------------"
-	@find scripts/ -type f | while read script; do \
+	@find scripts/ -type f,l | while read script; do \
 		_scripts/print-status.sh $${script/scripts/~/.local/bin} $${script}; \
 	done
 

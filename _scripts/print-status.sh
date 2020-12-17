@@ -14,7 +14,7 @@ RESET="\033[0m"
 if [[ ! -f ${A} ]]; then
     echo -e "${C_NIN}[Not installed]: ${A}${RESET}"
     exit 0
-elif [[ -h "${A}" && "$(readlink $A)" == "${B}" ]]; then
+elif [[ -h "${A}" && "$(readlink -e $A)" == "${B}" ]]; then
     echo -e "${C_UTD}[Up to date   ]: ${A}${RESET}"
 else
     diff -q ${A} ${B} > /dev/null

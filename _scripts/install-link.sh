@@ -26,6 +26,12 @@ function _exit
     exit $1
 }
 
+function _link
+{
+    mkdir -p "$(dirname ${TARGET})"
+    ln -s $@ "${SOURCE}" "${TARGET}"
+}
+
 # =======================
 # Script
 # -----------------------
@@ -40,12 +46,12 @@ if [[ "$(readlink -e ${TARGET})" == "$(readlink -e ${SOURCE})" ]]; then
 elif [[ -h "${TARGET}" ]]; then
     # There is a link but it points somewhere else
     echo "Overwriting an existing link pointing to: '$(readlink -e ${TARGET})'."
-    ln -sf "${SOURCE}" "${TARGET}" && _exit 0 || _exit 103
+    _link -f && _exit 0 || _exit 103
 
 elif [[ ! -e "${TARGET}" ]]; then
     # There is no link or file
     echo "File/link doesn't exist. Creating link."
-    ln -s "${SOURCE}" "${TARGET}" && _exit 0 || _exit 104
+    _link && _exit 0 || _exit 104
 
 else
     # There is a file where we want the link
@@ -54,7 +60,7 @@ else
     0)
         # The installed file is identical to the rendered one
         echo "Overwriting an identical file with a link."
-        ln -sf "${SOURCE}" "${TARGET}" && _exit 0 || _exit 105
+        _link -f && _exit 0 || _exit 105
         ;;
     1)
         # The installed file is different from the rendered one
@@ -64,7 +70,7 @@ else
         echo "Renaming original with suffix \".${_SUFFIX}\"."
         mv "${TARGET}" "${_NEW_TARGET}"
 
-        ln -s "${SOURCE}" "${TARGET}" && _exit 0 || _exit 106
+        _link && _exit 0 || _exit 106
         ;;
     2)
         _exit 107

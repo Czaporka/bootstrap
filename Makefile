@@ -1,4 +1,4 @@
-SHELL := /usr/bin/bash
+SHELL := /usr/bin/env bash
 
 DOTFILES := $(shell find dotfiles/ -type f -name "[^_]*")
 DOTFILES := $(filter-out %.old, ${DOTFILES})

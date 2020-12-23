@@ -6,51 +6,6 @@ case $- in
       *) return;;
 esac
 
-function _get_fancy_prompt()
-{
-    function _escape()
-    {
-        printf "\[\033${1}\]"
-    }
-    local _green=$(_escape '[1;32m')
-    local _blue=$(_escape '[1;34m')
-    local _reset=$(_escape '[0m')
-    local _color
-    local _glyph
-
-    case $(uname) in
-    Linux)
-        case $(grep -P -o "(?<=^ID=)([a-z]+)$" /etc/os-release | tr -d '"') in
-        arch)    _color='15;148;210'; _glyph=' '; ;;
-        bsd)     _color='119;0;0'   ; _glyph=' '; ;;
-        centos)  _color='239;167;36'; _glyph=' '; ;;
-        debian)  _color='199;0;54'  ; _glyph=' '; ;;
-        fedora)  _color='0;69;126'  ; _glyph=' '; ;;
-        manjaro) _color='53;191;92' ; _glyph=' '; ;;
-        opensuse)_color='115;186;37'; _glyph=' '; ;;
-        raspbian)_color='195;28;74' ; _glyph=' '; ;;
-        redhat)  _color='238;0;0'   ; _glyph=' '; ;;
-        ubuntu)  _color='233;84;32' ; _glyph=' '; ;;
-        *)       _color='0;0;0'     ; _glyph=' '; ;;
-        esac
-        ;;
-    Darwin)
-        _color='255;255;255'; _glyph=' '
-        ;;
-    *)
-        _color='174;174;174'; _glyph=''
-        ;;
-    esac
-
-    _color=$(_escape "[38;2;${_color}m")
-
-    # glyph to the left
-    #echo -n "${_color}${_glyph}${_reset}${debian_chroot:+($debian_chroot)}${_green}\u@\h${_reset}:${_blue}\w${_reset}\$ "
-
-    # glyph instead of @
-    echo -n "${debian_chroot:+($debian_chroot)}${_green}\u${_color}${_glyph}${_green}\h${_reset}:${_blue}\w${_reset}\$ "
-}
-
 
 HISTCONTROL=ignoreboth
 HISTSIZE=1000
@@ -73,16 +28,35 @@ case "$TERM" in
     xterm-color|*-256color) color_prompt=yes;;
 esac
 
-if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-    PS1=$(_get_fancy_prompt)
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+if [[ "${color_prompt}" == yes ]]; then
+
+    function _escape { printf "\[\033${1}\]"; }
+
+    if command -v get-insignia >/dev/null; then
+        IFS=" " read _color _glyph <<< "$(get-insignia)"
+        DISTRO_COLOR="$(_escape ${_color})"
+        DISTRO_GLYPH="${_glyph}"
+        unset _color _glyph
+    fi
+
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+        _green=$(_escape '[1;32m')
+        _blue=$(_escape '[1;34m')
+        _reset=$(_escape '[0m')
+        if [[ ! -z "${DISTRO_COLOR}" ]]; then
+            PS1="${debian_chroot:+($debian_chroot)}${_green}\u${DISTRO_COLOR}${DISTRO_GLYPH} ${_green}\h${_reset}:${_blue}\w${_reset}\$ "
+        else
+            PS1="${debian_chroot:+($debian_chroot)}${_green}\u@\h${_reset}:${_blue}\w${_reset}\$ "
+        fi
+    else
+        PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+    fi
 fi
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
 xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h:\w\a\]$PS1"
     ;;
 *)
     ;;
@@ -97,6 +71,7 @@ if [ -x /usr/bin/dircolors ]; then
     alias grep='grep --color=auto'
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
+    alias tree='tree -C'
 fi
 
 # colored GCC warnings and errors
@@ -121,6 +96,8 @@ if ! shopt -oq posix; then
   fi
 fi
 
-if [ -d ~/.bash_completion ]; then
-    source ~/.bash_completion/*
+if [ -d ~/.bash_completion.d ]; then
+    . ~/.bash_completion.d/*
 fi
+
+export GIT_EDITOR=vim

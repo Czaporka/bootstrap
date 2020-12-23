@@ -1,0 +1,3 @@
+if [ -d ~/.bash_completion.d ]; then
+    . ~/.bash_completion.d/*
+fi

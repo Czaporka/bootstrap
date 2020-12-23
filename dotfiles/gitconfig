@@ -1,0 +1,10 @@
+[user]
+    email = 30650003+Czaporka@users.noreply.github.com
+    name = Czaporka
+[color]
+    diff = auto
+    status = auto
+    branch = auto
+    interactive = auto
+    ui = true
+    pager = true

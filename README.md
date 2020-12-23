@@ -3,6 +3,8 @@
 ## Description
 Overengineered solution for installing my poor collection of dotfiles and scripts to freshly provisioned machines.
 
+Currently works OK on Debian-like distros. On others there is quite a lot of issues.
+
 ## Example
 ```
 user@host:~/bootstrap$ make install-script-make-env.sh

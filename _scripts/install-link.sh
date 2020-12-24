@@ -70,10 +70,14 @@ else
         echo "Renaming original with suffix \".${_SUFFIX}\"."
         mv "${TARGET}" "${_NEW_TARGET}"
 
-        _link && _exit 0 || _exit 106
+        echo "Replacing the original with link."
+        _link || _exit 106
+
+        echo "Overwriting the link target with the original."
+        mv -f "${_NEW_TARGET}" "$(readlink ${TARGET})" || _exit 107
         ;;
     2)
-        _exit 107
+        _exit 108
         ;;
     esac
 fi

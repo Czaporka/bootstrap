@@ -30,5 +30,13 @@
             "filenamePattern": "*.ipynb"
         }
     ],
-    "workbench.tree.indent": 20
+    "workbench.tree.indent": 20,
+    "workbench.sash.size": 8,
+    "terminal.external.linuxExec": "alacritty",
+    "terminal.explorerKind": "external",
+    "extensions.ignoreRecommendations": true,
+    "python.languageServer": "Pylance",
+    "[markdown]": {
+        "editor.wordWrap": "off"
+    }
 }

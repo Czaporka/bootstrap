@@ -2,6 +2,7 @@ SHELL := /usr/bin/env bash
 
 DOTFILES := $(shell find dotfiles/ -type f -name "[^_]*")
 DOTFILES := $(filter-out %.old, ${DOTFILES})
+ENV := ./.env
 TARGET := ${DOTFILES:dotfiles/%=target/%}
 
 SCRIPTS := $(shell find scripts/ -type f -name "[^_]*")
@@ -13,6 +14,10 @@ BASENAMES_DOTFILES := ${BASENAMES_DOTFILES:%.j2=%}
 
 .PHONY: render
 render: ${TARGET}
+
+${ENV}:
+	python3 -m venv ${ENV}
+	source ${ENV}/bin/activate && pip install jinja2
 
 .SUFFIXES:
 
@@ -27,8 +32,8 @@ status: render
 	@echo "==============================="
 	@echo "|          dotfiles:"
 	@echo "-------------------------------"
-	@find target/ -type f,l | while read rendered; do \
-		_scripts/print-status.sh $${rendered/target\//~/.} $${rendered}; \
+	@{ find target -type f; find target -type l; } | while read rendered; do \
+	    _scripts/print-status.sh $${rendered/target\//~/.} $${rendered}; \
 	done
 	@echo "==============================="
 	@echo "|         scripts:"
@@ -40,8 +45,8 @@ status: render
 # ======================================================
 # | Render a dotfile and put it into `target/`
 # ------------------------------------------------------
-target/%: dotfiles/% _scripts/render-single.py
-	@_scripts/render-single.py dotfiles/$* ${@:%.j2=%}
+target/%: dotfiles/% _scripts/render-single.py ${ENV}
+	@source ${ENV}/bin/activate && _scripts/render-single.py dotfiles/$* ${@:%.j2=%}
 
 # ======================================================
 # | Generate target for each script in `scripts/`, e.g.:

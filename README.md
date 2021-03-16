@@ -3,7 +3,7 @@
 ## Description
 Overengineered solution for installing my poor collection of dotfiles and scripts to freshly provisioned machines.
 
-Currently works OK on Debian-like distros. On others there is quite a lot of issues.
+Currently works OK on Debian-like Linux distros. On other platforms it may require a lot of adjustments.
 
 ## Example
 ```

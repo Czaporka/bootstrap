@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -u
 
+source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
+
 # =======================
 # Script arguments
 # -----------------------
@@ -39,13 +41,13 @@ echo "Attempting to install:"
 echo "  link       : ${TARGET}"
 echo "  pointing to: ${SOURCE}"
 
-if [[ "$(readlink -e ${TARGET})" == "$(readlink -e ${SOURCE})" ]]; then
+if [[ "$(${READLINK} -e ${TARGET})" == "$(${READLINK} -e ${SOURCE})" ]]; then
     # The link is already installed
     echo "Existing link is up to date."; _exit 0
 
 elif [[ -h "${TARGET}" ]]; then
     # There is a link but it points somewhere else
-    echo "Overwriting an existing link pointing to: '$(readlink -e ${TARGET})'."
+    echo "Overwriting an existing link pointing to: '$(${READLINK} -e ${TARGET})'."
     _link -f && _exit 0 || _exit 103
 
 elif [[ ! -e "${TARGET}" ]]; then
@@ -74,7 +76,7 @@ else
         _link || _exit 106
 
         echo "Overwriting the link target with the original."
-        mv -f "${_NEW_TARGET}" "$(readlink ${TARGET})" || _exit 107
+        mv -f "${_NEW_TARGET}" "$(${READLINK} ${TARGET})" || _exit 107
         ;;
     2)
         _exit 108

@@ -1,11 +1,11 @@
 SHELL := /usr/bin/env bash
 
-DOTFILES := $(shell find dotfiles/ -type f -name "[^_]*")
+DOTFILES := $(shell find dotfiles -type f -name "[^_]*")
 DOTFILES := $(filter-out %.old, ${DOTFILES})
 ENV := ./.env
 TARGET := ${DOTFILES:dotfiles/%=target/%}
 
-SCRIPTS := $(shell find scripts/ -type f -name "[^_]*")
+SCRIPTS := $(shell find scripts -type f -name "[^_]*")
 
 BASENAMES_SCRIPTS := ${SCRIPTS:scripts/%=%}
 BASENAMES_DOTFILES := ${DOTFILES:dotfiles/%=%}

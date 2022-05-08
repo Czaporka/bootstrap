@@ -2,3 +2,9 @@ echo "...in ~/.bash_aliases..."
 alias ll='ls -l'
 alias la='ls -A'
 alias stop-blink='echo -en "\e[2 q"'
+
+function activate
+{
+    local _env="${1:-.env}"
+    source "${_env}/bin/activate"
+}
